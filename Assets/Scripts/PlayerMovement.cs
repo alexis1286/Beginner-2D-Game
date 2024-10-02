@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -20,17 +20,14 @@ public class PlayerMovement : MonoBehaviour
         boxCollider = GetComponent<BoxCollider2D>();
     }
 
-//Update is used to detect movement 
-  private void Update()
+    private void Update()
     {
         horizontalInput = Input.GetAxis("Horizontal");
 
         //Flip player when moving left-right
         if (horizontalInput > 0.01f)
-        //this is left
             transform.localScale = Vector3.one;
         else if (horizontalInput < -0.01f)
-        //this is right
             transform.localScale = new Vector3(-1, 1, 1);
 
         //Set animator parameters
@@ -57,36 +54,40 @@ public class PlayerMovement : MonoBehaviour
             wallJumpCooldown += Time.deltaTime;
     }
 
-    private void Jump(){
-           if(isGrounded()){
-            body.velocity = new Vector2(body.velocity.x,jumpPower);
-            anim.SetTrigger("Jump");
-           }
-           else if(onWall() && !isGrounded()){
-            if(horizontalInput == 0){
-                body.velocity = new Vector2(-Mathf.Sign(transform.localScale.x) * 10,0);
-                transform.localScale = new Vector3(-Mathf.Sign(transform.localScale.x),transform.localScale.y, transform.localScale.z);
+    private void Jump()
+    {
+        if (isGrounded())
+        {
+            body.velocity = new Vector2(body.velocity.x, jumpPower);
+            anim.SetTrigger("jump");
+        }
+        else if (onWall() && !isGrounded())
+        {
+            if (horizontalInput == 0)
+            {
+                body.velocity = new Vector2(-Mathf.Sign(transform.localScale.x) * 10, 0);
+                transform.localScale = new Vector3(-Mathf.Sign(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             }
             else
-                body.velocity = new Vector2(-Mathf.Sign(transform.localScale.x) * 3,6);
-
+                body.velocity = new Vector2(-Mathf.Sign(transform.localScale.x) * 3, 6);
 
             wallJumpCooldown = 0;
-            //pushes him of the wall and give more force to jump 
-            
-           }
+        }
     }
 
-    private bool isGrounded(){
 
-        RaycastHit2D raycastHit = Physics2D.BoxCast(boxCollider.bounds.center,boxCollider.bounds.size, 0 , Vector2.down, 0.1f,groundLayer);
+    private bool isGrounded()
+    {
+        RaycastHit2D raycastHit = Physics2D.BoxCast(boxCollider.bounds.center, boxCollider.bounds.size, 0, Vector2.down, 0.1f, groundLayer);
         return raycastHit.collider != null;
     }
-
-    private bool onWall(){
-
-        RaycastHit2D raycastHit = Physics2D.BoxCast(boxCollider.bounds.center, boxCollider.bounds.size, 0 , new Vector2(transform.localScale.x,0), 0.1f,wallLayer);
+    private bool onWall()
+    {
+        RaycastHit2D raycastHit = Physics2D.BoxCast(boxCollider.bounds.center, boxCollider.bounds.size, 0, new Vector2(transform.localScale.x, 0), 0.1f, wallLayer);
         return raycastHit.collider != null;
     }
-    
+    public bool canAttack()
+    {
+        return horizontalInput == 0 && isGrounded() && !onWall();
+    }
 }
